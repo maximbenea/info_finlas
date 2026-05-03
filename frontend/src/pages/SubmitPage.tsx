@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { MathTex } from '../components/MathTex'
+import SiteFooter from '../components/SiteFooter'
+import SiteNav from '../components/SiteNav'
 
 type TestResult = {
   test_name: string
@@ -18,7 +20,36 @@ type SubmissionResponse = {
   results: TestResult[]
 }
 
-const API_URL = 'http://127.0.0.1:8000/submit'
+const API_URL = 'https://fastapi-judge.onrender.com/submit'
+
+// Clasificare la texte de judge; „greșit” verificat înainte de „acceptat” (not_accepted etc.).
+function toneFromJudgeStatus(status: string): 'accepted' | 'wrong' | 'other' {
+  const s = status.trim().toLowerCase().replace(/[\s-]+/g, '_')
+
+  const isWrong =
+    s === 'wa' ||
+    s === 'wrong_answer' ||
+    s.includes('wrong') ||
+    s === 'incorrect' ||
+    s === 'fail' ||
+    s === 'failed' ||
+    s === 'not_accepted' ||
+    s.includes('not_accepted')
+
+  const isAccepted =
+    !isWrong &&
+    (s === 'accepted' ||
+      s === 'ac' ||
+      s === 'ok' ||
+      s === 'passed' ||
+      s === 'success' ||
+      s === 'corect' ||
+      s === 'all_accepted')
+
+  if (isWrong) return 'wrong'
+  if (isAccepted) return 'accepted'
+  return 'other'
+}
 
 function SubmitPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
@@ -45,7 +76,7 @@ function SubmitPage() {
     }
 
     const formData = new FormData()
-    formData.append('file', selectedFile)
+    formData.append('file', selectedFile) // API-ul așteaptă câmpul file, nu JSON.
 
     setIsSubmitting(true)
     setError(null)
@@ -77,11 +108,7 @@ function SubmitPage() {
     <div className="page">
       <header className="topbar">
         <h1>Submit Solutie</h1>
-        <div className="topbar-actions">
-          <Link className="nav-btn" to="/">
-            Pagina Studiu
-          </Link>
-        </div>
+        <SiteNav />
       </header>
 
       <main className="submit-page">
@@ -105,7 +132,13 @@ function SubmitPage() {
           <p>
             <strong>Fisier selectat:</strong> {selectedFile ? selectedFile.name : 'Niciun fisier'}
           </p>
-          <p>
+          <p
+            className={
+              response
+                ? `submission-status-line submission-status-line--${toneFromJudgeStatus(response.status)}`
+                : undefined
+            }
+          >
             <strong>Status:</strong> {statusLabel}
           </p>
 
@@ -122,46 +155,60 @@ function SubmitPage() {
             <section>
               <h3>Rezultate teste</h3>
               <div className="results-list">
-                {response.results.map((test) => (
-                  <article key={test.test_name} className="result-card">
+                {/* Clasa cardului urmează toneFromJudgeStatus (stringuri). */}
+                {response.results.map((test) => {
+                  const tone = toneFromJudgeStatus(test.status)
+                  return (
+                  <article key={test.test_name} className={`result-card result-card--${tone}`}>
                     <h4>{test.test_name}</h4>
-                    <p>Status: {test.status}</p>
+                    <p className="result-status">
+                      Status: {test.status}
+                    </p>
                     <p>Timp: {test.time_ms} ms</p>
                     <p>Memorie: {test.memory_kb} KB</p>
                     {test.stderr && <pre>{test.stderr}</pre>}
                   </article>
-                ))}
+                  )
+                })}
               </div>
             </section>
           )}
         </section>
       </main>
+
+      <SiteFooter />
     </div>
   )
 }
 
+// Enunț static; MathTex pentru indici/inegalități
 function MoneySumsStatement() {
   return (
     <section id="problema-money-sums" className="doc-section">
-      <h2>Problema: Money Sums (traducere in romana)</h2>
+      <h2>Problema: Money Sums</h2>
       <p>
-        Ai <code>n</code> monede cu anumite valori. Sarcina ta este sa gasesti toate sumele de
-        bani pe care le poti forma folosind aceste monede.
+        Ai <MathTex>n</MathTex> monede cu anumite valori. Sarcina ta este să găsești toate sumele de
+        bani pe care le poți forma folosind aceste monede.
       </p>
       <h3>Date de intrare</h3>
       <p>
-        Prima linie contine un intreg <code>n</code>, numarul de monede. A doua linie contine{' '}
-        <code>n</code> numere intregi: <code>x1, x2, ..., xn</code>, valorile monedelor.
+        Prima linie conține un întreg <MathTex>n</MathTex>, numărul de monede. A doua linie conține{' '}
+        <MathTex>n</MathTex> numere întregi: <MathTex>{'x_1, x_2, \\ldots, x_n'}</MathTex>, valorile
+        monedelor.
       </p>
-      <h3>Date de iesire</h3>
+      <h3>Date de ieșire</h3>
       <p>
-        Afiseaza mai intai un intreg <code>k</code>: numarul de sume distincte obtinute. Dupa
-        aceea, afiseaza toate sumele posibile in ordine crescatoare.
+        Afișează mai întâi un întreg <MathTex>k</MathTex>: numărul de sume distincte obținute. După
+        aceea, afișează toate sumele posibile în ordine crescătoare.
       </p>
-      <h3>Constrangeri</h3>
+      <h3>Constrângeri</h3>
       <ul className="doc-list">
-        <li>1 &lt;= n &lt;= 100</li>
-        <li>1 &lt;= xi &lt;= 1000</li>
+        <li>
+          <MathTex>{'1 \\le n \\le 100'}</MathTex>
+        </li>
+        <li>
+          <MathTex>{'1 \\le x_i \\le 1000'}</MathTex>
+        </li>
       </ul>
       <h3>Exemplu</h3>
       <pre>

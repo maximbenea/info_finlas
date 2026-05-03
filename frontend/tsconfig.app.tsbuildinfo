@@ -1,1 +1,1 @@
-{"root":["./src/App.tsx","./src/main.tsx","./src/pages/DocsPage.tsx","./src/pages/SubmitPage.tsx"],"version":"5.9.3"}
+{"root":["./src/App.tsx","./src/main.tsx","./src/vite-env.d.ts","./src/components/MathTex.tsx","./src/components/SiteFooter.tsx","./src/components/SiteNav.tsx","./src/pages/DocsPage.tsx","./src/pages/LaboratorPage.tsx","./src/pages/MediaPage.tsx","./src/pages/SubmitPage.tsx","./src/pages/TabelePage.tsx","./js/interactions.js"],"version":"5.9.3"}

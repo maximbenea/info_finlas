@@ -1,10 +1,14 @@
-import { useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import hljs from 'highlight.js/lib/core'
 import cpp from 'highlight.js/lib/languages/cpp'
+import { buildFibonacciTerms } from '../../js/interactions.js'
+import SiteFooter from '../components/SiteFooter'
+import SiteNav from '../components/SiteNav'
 
 hljs.registerLanguage('cpp', cpp)
 
+// id-uri = ancore în HTML; lista alimentează cuprinsul din sidebar fără duplicare.
 const docSections = [
   { id: 'introducere', title: 'Introducere' },
   { id: 'memoizare', title: 'Accelerarea Fibonacci (Memoizare)' },
@@ -12,23 +16,41 @@ const docSections = [
   { id: 'probleme-clasice', title: 'Probleme Clasice de DP' },
   { id: 'subiecte-adiacente', title: 'Subiecte Adiacente' },
   { id: 'exersare', title: 'Probleme de Exersare' },
+  { id: 'demo-fibonacci', title: 'Demo Fibonacci' },
 ]
 
 function DocsPage() {
+  const location = useLocation()
+  const [fibN, setFibN] = useState(8)
+  const [fibLine, setFibLine] = useState('')
+
+  const handleFibDemo = () => {
+    const terms = buildFibonacciTerms(fibN) // implementare în js/interactions.js
+    setFibLine(terms.join(', '))
+  }
+
   useEffect(() => {
     const blocks = document.querySelectorAll('pre code')
     blocks.forEach((block) => hljs.highlightElement(block as HTMLElement))
+    // highlight.js rulează după montare
   }, [])
+
+  // #introducere 
+  useEffect(() => {
+    const id = location.hash.replace(/^#/, '')
+    if (!id) return
+    const el = document.getElementById(id)
+    if (!el) return
+    requestAnimationFrame(() => {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
+  }, [location.pathname, location.hash])
 
   return (
     <div className="page">
       <header className="topbar">
         <h1>Programare Dinamica</h1>
-        <div className="topbar-actions">
-          <Link className="nav-btn" to="/submit">
-            Pagina Submit
-          </Link>
-        </div>
+        <SiteNav />
       </header>
 
       <div className="layout">
@@ -187,9 +209,7 @@ int f(int n) {
                 <strong>Rucsac 0-1:</strong> maximizezi valoarea totala sub o constrangere de
                 greutate.
               </li>
-              <li>
-                <strong>Subset Sum:</strong> verifici daca exista un subset cu suma exacta T.
-              </li>
+              
               <li>
                 <strong>LIS (Longest Increasing Subsequence):</strong> cea mai lunga subsir
                 crescator.
@@ -202,17 +222,9 @@ int f(int n) {
                 <strong>LCS (Longest Common Subsequence):</strong> lungimea celui mai lung subsir
                 comun pentru doua siruri.
               </li>
-              <li>
-                <strong>Cel mai lung drum intr-un DAG:</strong> varianta pe graf aciclic
-                orientat.
-              </li>
-              <li>
-                <strong>Longest Palindromic Subsequence:</strong> cel mai lung subsir palindrom.
-              </li>
-              <li>
-                <strong>Taierea tijei (Rod Cutting):</strong> cost minim total pentru efectuarea
-                taieturilor.
-              </li>
+              
+              
+              
               <li>
                 <strong>Distanta de editare:</strong> minim de operatii Add/Remove/Replace pentru
                 a transforma un sir in altul.
@@ -224,7 +236,6 @@ int f(int n) {
             <h2>Subiecte adiacente</h2>
             <ul className="doc-list">
               <li>Programare Dinamica pe biti (Bitmask DP)</li>
-              <li>Digit DP</li>
               <li>Programare Dinamica pe arbori</li>
             </ul>
           </section>
@@ -232,18 +243,88 @@ int f(int n) {
           <section id="exersare" className="doc-section">
             <h2>Probleme pentru exersare</h2>
             <ul className="doc-list">
-              <li>LeetCode 1137 - N-th Tribonacci Number</li>
-              <li>LeetCode 118 - Pascal&apos;s Triangle</li>
-              <li>LeetCode 1025 - Divisor Game</li>
-              <li>Codeforces - Vacations</li>
-              <li>Codeforces - Hard problem</li>
-              <li>Codeforces - Zuma</li>
-              <li>LeetCode 221 - Maximal Square</li>
-              <li>LeetCode 1039 - Minimum Score Triangulation of Polygon</li>
+              <li>
+                <a
+                  href="https://leetcode.com/problems/n-th-tribonacci-number/"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  LeetCode 1137 — N-th Tribonacci Number
+                </a>
+              </li>
+              <li>
+                <a href="https://leetcode.com/problems/pascals-triangle/" target="_blank" rel="noreferrer">
+                  LeetCode 118 — Pascal&apos;s Triangle
+                </a>
+              </li>
+              <li>
+                <a href="https://leetcode.com/problems/divisor-game/" target="_blank" rel="noreferrer">
+                  LeetCode 1025 — Divisor Game
+                </a>
+              </li>
+              <li>
+                <a href="https://codeforces.com/problemset/problem/699/C" target="_blank" rel="noreferrer">
+                  Codeforces 699C — Vacations
+                </a>
+              </li>
+              <li>
+                <a href="https://codeforces.com/problemset/problem/466/C" target="_blank" rel="noreferrer">
+                  Codeforces 466C — Number of Ways
+                </a>
+              </li>
+              <li>
+                <a href="https://codeforces.com/problemset/problem/607/B" target="_blank" rel="noreferrer">
+                  Codeforces 607B — Zuma
+                </a>
+              </li>
+              <li>
+                <a href="https://leetcode.com/problems/maximal-square/" target="_blank" rel="noreferrer">
+                  LeetCode 221 — Maximal Square
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://leetcode.com/problems/minimum-score-triangulation-of-polygon/"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  LeetCode 1039 — Minimum Score Triangulation of Polygon
+                </a>
+              </li>
             </ul>
+          </section>
+
+          <section id="demo-fibonacci" className="doc-section">
+            <h2>Demo Fibonacci</h2>
+            <p>
+              Generează primii <code>n</code> termeni Fibonacci în browser.
+            </p>
+            <div className="laborator-form">
+              <label htmlFor="fib-count-docs" className="field-label">
+                Număr de termeni
+              </label>
+              <input
+                id="fib-count-docs"
+                type="number"
+                min={0}
+                max={32}
+                value={fibN}
+                onChange={(event) => setFibN(Number(event.target.value))}
+              />
+              <div className="fib-actions">
+                <button type="button" onClick={handleFibDemo}>
+                  Afișează secvența
+                </button>
+              </div>
+              <p className="fib-preview" id="fib-preview-docs">
+                {fibLine || 'Apasă butonul pentru a genera secvența în client.'}
+              </p>
+            </div>
           </section>
         </main>
       </div>
+
+      <SiteFooter />
     </div>
   )
 }
